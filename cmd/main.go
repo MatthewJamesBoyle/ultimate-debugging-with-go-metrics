@@ -55,9 +55,20 @@ func main() {
 		log.Fatal(err)
 	}
 
+	dataChan := make(chan struct{})
+
+	a := []int{123}
+	b := []int{456}
+	c := append(append(a, b...), b...)
+
 	http.HandleFunc("/tx", func(w http.ResponseWriter, r *http.Request) {
 		transactionSuccess.Inc()
-
+		go func() {
+			for i := 0; ; i++ {
+				dataChan <- struct{}{}
+				time.Sleep(1 * time.Second)
+			}
+		}()
 		w.Write([]byte("counter incremented"))
 	})
 
